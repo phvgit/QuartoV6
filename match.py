@@ -5,8 +5,10 @@ class Match:
         self.board = Board()
         self.selected_piece = None
         self.is_human_turn = True
+        self.numMove = 1
 
     def reset(self):
         self.board = Board()
         self.selected_piece = None
         self.is_human_turn = True
+        self.numMove = 1

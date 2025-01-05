@@ -22,7 +22,7 @@ class GuiMainWin(Tk):
         self.canvas.pack(pady=20, side=LEFT)
         self.canvas.bind("<Button-1>", self.on_canvas_click)
 
-        self.info_label = Label(self, text="Your turn! Select a piece for the computer.")
+        self.info_label = Label(self, text="Move 1 Human turn ! Select a piece for the computer.")
         self.info_label.pack(pady=10)
 
         self.reset_button = Button(self, text="Reset", command=self.reset_game)
@@ -63,8 +63,9 @@ class GuiMainWin(Tk):
 
     def human_select_piece(self, piece):
         self.match.selected_piece = piece
+        self.match.numMove += 1
         self.human_selected_piece_label.config(text=f"Human selected piece: {piece}")
-        self.info_label.config(text="Computer's turn to place the piece.")
+        self.info_label.config(text=f"Move {self.match.numMove} Computer's turn to place the piece.")
         self.play_sound("resources/WoodWhoosh.wav")
         self.after(1000, self.computer_place_piece)
 
@@ -80,10 +81,11 @@ class GuiMainWin(Tk):
                 self.update_pieces()
                 self.play_sound("resources/WoodImpact.wav")
                 if game_over(self.match.board):
-                    messagebox.showinfo("Game Over", "Human win!")
+                    messagebox.showinfo("Game Over", "Human win !")
                     self.reset_game()
                 else:
-                    self.info_label.config(text="Select a piece for the computer.")
+                    self.match.numMove += 1
+                    self.info_label.config(text=f"Move {self.match.numMove} Human turn ! Select a piece for the computer.")
                     self.match.is_human_turn = True
 
     def computer_place_piece(self):
@@ -94,21 +96,26 @@ class GuiMainWin(Tk):
         self.update_pieces()
         self.play_sound("resources/WoodImpact.wav")
         if game_over(self.match.board):
-            messagebox.showinfo("Game Over", "Computer wins!")
+            messagebox.showinfo("Game Over", "Computer wins !")
             self.reset_game()
         else:
             self.computer_select_piece()
 
     def computer_select_piece(self):
-        self.info_label.config(text="Computer's turn to select a piece.")
+        self.match.numMove += 1
+        self.info_label.config(text=f"Move {self.match.numMove} Computer's turn to select a piece.")
         self.progress.start()
         self.update_idletasks()
         _, piece_to_give = computer_move(self.match.board, 3)
         self.progress.stop()
         self.match.selected_piece = piece_to_give
-        self.info_label.config(text="Your turn! Place the piece selected by the computer.")
         self.computer_selected_piece_label.config(text=f"Computer selected piece: {piece_to_give}")
         self.play_sound("resources/WoodWhoosh.wav")
+
+        # Wait for human move to place the piece in GUI
+        self.match.numMove += 1
+        self.info_label.config(text=f"Move {self.match.numMove} Human turn! Place the piece selected by the computer.")
+        
 
     def play_sound(self, sound_file):
         pygame.mixer.music.load(sound_file)
@@ -118,7 +125,8 @@ class GuiMainWin(Tk):
         self.match.reset()
         self.update_board()
         self.update_pieces()
-        self.info_label.config(text="Your turn! Select a piece for the computer.")
+        self.match.numMove += 1
+        self.info_label.config(text=f"Move {self.match.numMove} Human turn! Select a piece for the computer.")
         self.human_selected_piece_label.config(text="Human selected piece: None")
         self.computer_selected_piece_label.config(text="Computer selected piece: None")
 
