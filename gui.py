@@ -16,6 +16,7 @@ class GuiMainWin(Tk):
         self.update_board()
         self.update_pieces()
         pygame.mixer.init()
+        self.piece_buttons = {}
 
     def create_widgets(self):
         self.canvas = Canvas(self, width=400, height=400)
@@ -57,9 +58,12 @@ class GuiMainWin(Tk):
         for widget in self.pieces_frame.winfo_children():
             widget.destroy()
 
+        self.piece_buttons = {}
         for piece in self.match.board.unusedPieces():
             piece_button = Button(self.pieces_frame, text=str(piece), command=lambda p=piece: self.human_select_piece(p))
             piece_button.pack(pady=5)
+            self.piece_buttons[piece] = piece_button
+
 
     def human_select_piece(self, piece):
         self.match.selected_piece = piece
@@ -111,6 +115,12 @@ class GuiMainWin(Tk):
         self.match.selected_piece = piece_to_give
         self.computer_selected_piece_label.config(text=f"Computer selected piece: {piece_to_give}")
         self.play_sound("resources/WoodWhoosh.wav")
+        # Change the background color of the selected piece button to green
+        for piece, button in self.piece_buttons.items():
+            if piece == piece_to_give:
+                button.config(bg="green")
+            else:
+                button.config(bg="SystemButtonFace")
 
         # Wait for human move to place the piece in GUI
         self.match.numMove += 1
