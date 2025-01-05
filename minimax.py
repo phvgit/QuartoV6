@@ -1,7 +1,4 @@
-from evaluate import evaluate
 from game_over import game_over
-from moves import get_all_possible_moves
-from select_next_piece import select_next_piece
 
 def minimax(board, depth, is_maximizing, alpha, beta, piece_to_place):
     if depth == 0 or game_over(board):
@@ -56,3 +53,64 @@ def best_move_for_piece(board, piece, depth):
             best_move = move
 
     return best_move
+
+def select_next_piece(board, move):
+    available_pieces = board.unusedPieces()
+    best_piece = None
+    min_opponent_winning_moves = float('inf')
+
+    for piece in available_pieces:
+        opponent_winning_moves = 0
+        for pos in board.unusedPositions():
+            new_board = move.copy()
+            new_board.place_piece(piece, pos)
+            if game_over(new_board):
+                opponent_winning_moves += 1
+
+        if opponent_winning_moves < min_opponent_winning_moves:
+            min_opponent_winning_moves = opponent_winning_moves
+            best_piece = piece
+
+    return best_piece
+
+def get_all_possible_moves(board, piece_to_place):
+    possible_moves = []
+    available_positions = board.unusedPositions()
+
+    for pos in available_positions:
+        new_board = board.copy()
+        new_board.place_piece(piece_to_place, pos)
+        possible_moves.append(new_board)
+
+    return possible_moves
+
+def evaluate(board):
+    def check_line(line):
+        if len(line) != 4 or any(piece is None for piece in line):
+            return 0
+        attributes = ['height', 'color', 'shape', 'consistency']
+        score = 0
+        for attr in attributes:
+            if all(getattr(piece, attr) == getattr(line[0], attr) for piece in line):
+                score += 1
+        return score
+
+    total_score = 0
+
+    # Check rows
+    for row in range(4):
+        line = [board.get_piece(row, col) for col in range(4)]
+        total_score += check_line(line)
+
+    # Check columns
+    for col in range(4):
+        line = [board.get_piece(row, col) for row in range(4)]
+        total_score += check_line(line)
+
+    # Check diagonals
+    diagonal1 = [board.get_piece(i, i) for i in range(4)]
+    diagonal2 = [board.get_piece(i, 3 - i) for i in range(4)]
+    total_score += check_line(diagonal1)
+    total_score += check_line(diagonal2)
+
+    return total_score
