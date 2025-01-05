@@ -7,8 +7,8 @@ def minimax(board, depth, is_maximizing, alpha, beta, piece_to_place):
     if is_maximizing:
         max_eval = float('-inf')
         for move in get_all_possible_moves(board, piece_to_place):
-            next_piece = select_next_piece(board, move)
-            eval = minimax(move, depth - 1, False, alpha, beta, next_piece)
+            best_selected_piece = best_piece_for_select(board, move)
+            eval = minimax(move, depth - 1, False, alpha, beta, best_selected_piece)
             max_eval = max(max_eval, eval)
             alpha = max(alpha, eval)
             if beta <= alpha:
@@ -17,15 +17,15 @@ def minimax(board, depth, is_maximizing, alpha, beta, piece_to_place):
     else:
         min_eval = float('inf')
         for move in get_all_possible_moves(board, piece_to_place):
-            next_piece = select_next_piece(board, move)
-            eval = minimax(move, depth - 1, True, alpha, beta, next_piece)
+            best_selected_piece = best_piece_for_select(board, move)
+            eval = minimax(move, depth - 1, True, alpha, beta, best_selected_piece)
             min_eval = min(min_eval, eval)
             beta = min(beta, eval)
             if beta <= alpha:
                 break
         return min_eval
 
-def computer_move(board, depth):
+def select_computer_move(board, depth):
     best_move = None
     best_piece_to_give = None
     max_eval = float('-inf')
@@ -33,28 +33,17 @@ def computer_move(board, depth):
 
     for piece in available_pieces:
         for move in get_all_possible_moves(board, piece):
-            next_piece = select_next_piece(board, move)
-            eval = minimax(move, depth, False, float('-inf'), float('inf'), next_piece)
+            best_selected_piece = best_piece_for_select(board, move)
+            eval = minimax(move, depth, False, float('-inf'), float('inf'), best_selected_piece)
             if eval > max_eval:
                 max_eval = eval
                 best_move = move
-                best_piece_to_give = next_piece
+                best_piece_to_give = best_selected_piece
 
     return best_move, best_piece_to_give
 
-def best_move_for_piece(board, piece, depth):
-    best_move = None
-    max_eval = float('-inf')
-
-    for move in get_all_possible_moves(board, piece):
-        eval = minimax(move, depth, False, float('-inf'), float('inf'), None)
-        if eval > max_eval:
-            max_eval = eval
-            best_move = move
-
-    return best_move
-
-def select_next_piece(board, move):
+# Call by select_computer_move(board, depth)
+def best_piece_for_select(board, move):
     available_pieces = board.unusedPieces()
     best_piece = None
     min_opponent_winning_moves = float('inf')
@@ -72,6 +61,18 @@ def select_next_piece(board, move):
             best_piece = piece
 
     return best_piece
+
+def best_move_for_place(board, piece, depth):
+    best_move = None
+    max_eval = float('-inf')
+
+    for move in get_all_possible_moves(board, piece):
+        eval = minimax(move, depth, False, float('-inf'), float('inf'), None)
+        if eval > max_eval:
+            max_eval = eval
+            best_move = move
+
+    return best_move
 
 def get_all_possible_moves(board, piece_to_place):
     possible_moves = []

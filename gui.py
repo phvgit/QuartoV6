@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from tkinter import ttk
-from minimax import computer_move, best_move_for_piece
+from minimax import select_computer_move, best_move_for_place
 from match import Match
 from game_over import game_over
 import pygame
@@ -94,7 +94,7 @@ class GuiMainWin(Tk):
 
     def computer_place_piece(self):
         piece = self.match.selected_piece
-        best_move = best_move_for_piece(self.match.board, piece, 3)
+        best_move = best_move_for_place(self.match.board, piece, 3)
         self.match.board = best_move
         self.update_board()
         self.update_pieces()
@@ -110,7 +110,7 @@ class GuiMainWin(Tk):
         self.info_label.config(text=f"Move {self.match.numMove} Computer's turn to select a piece.")
         self.progress.start()
         self.update_idletasks()
-        _, piece_to_give = computer_move(self.match.board, 3)
+        _, piece_to_give = select_computer_move(self.match.board, 3)
         self.progress.stop()
         self.match.selected_piece = piece_to_give
         self.computer_selected_piece_label.config(text=f"Computer selected piece: {piece_to_give}")
